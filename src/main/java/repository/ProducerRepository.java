@@ -14,7 +14,7 @@ import java.util.List;
 
 @Log4j2
 public class ProducerRepository {
-    public static List<Producer> findByNamePreparedStatement(String name){
+    public static List<Producer> findByName(String name){
         List<Producer> producers = new ArrayList<>();
         try (Connection con = ConnectionFactory.getConnection();
              PreparedStatement ps = createPreparedStatement(con, name);
@@ -37,8 +37,8 @@ public class ProducerRepository {
             throws SQLException {
         String sql = "SELECT * FROM animeStore.producer WHERE name like ?;";
 
-        var ps = con.prepareStatement(sql);
-        ps.setString(1, name);
+        PreparedStatement ps = con.prepareStatement(sql);
+        ps.setString(1, String.format("%%%s%%", name));
         return ps;
     }
 }
