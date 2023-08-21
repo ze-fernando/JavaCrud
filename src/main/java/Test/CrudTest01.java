@@ -5,12 +5,12 @@ import service.ProducerService;
 import java.util.Scanner;
 
 public class CrudTest01 {
-    private static final Scanner sc = new Scanner(System.in);
+    private static final Scanner SCANNER = new Scanner(System.in);
     public static void main(String[] args) {
         int op;
         while (true){
             menu();
-            op = Integer.parseInt(sc.nextLine());
+            op = Integer.parseInt(SCANNER.nextLine());
             if (op == 0) break;
             ProducerService.buildMenu(op);
         }
@@ -20,6 +20,7 @@ public class CrudTest01 {
        System.out.println("Crud by java");
        System.out.println("Type the number o your operation");
        System.out.println("[1] Search for producer");
+       System.out.println("[2] Delete producer");
        System.out.println("[0] Exit");
    }
 }

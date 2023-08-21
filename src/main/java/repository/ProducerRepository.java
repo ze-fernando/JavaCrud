@@ -4,10 +4,7 @@ import conn.ConnectionFactory;
 import domain.Producer;
 import lombok.extern.log4j.Log4j2;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,5 +37,17 @@ public class ProducerRepository {
         PreparedStatement ps = con.prepareStatement(sql);
         ps.setString(1, String.format("%%%s%%", name));
         return ps;
+    }
+
+    public static void delete(int id){
+        String sql = "DELETE FROM `animeStore`.`producer` WHERE (`id` = '%d');".formatted(id);
+        try (Connection con = ConnectionFactory.getConnection();
+             Statement stmt = con.createStatement()){
+            int rowsAffect = stmt.executeUpdate(sql);
+            log.info("Deleted producer '{}' in db rows affected {}",id ,rowsAffect);
+        } catch (SQLException e){
+            log.error("Error while trying to delete producer '{}' ", id, e);
+        }
+
     }
 }
