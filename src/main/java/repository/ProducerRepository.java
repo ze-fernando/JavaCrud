@@ -63,4 +63,18 @@ public class ProducerRepository {
             e.printStackTrace();
         }
     }
+
+    public static void update(Producer producer){
+        String sql = "UPDATE `animeStore`.`producer` SET `name` = '%s ' WHERE (`id` = '%d');"
+                .formatted(producer.getName(), producer.getId());
+        try (Connection con = ConnectionFactory.getConnection();
+             Statement stmt = con.createStatement()){
+            int rowsAffect = stmt.executeUpdate(sql);
+            System.out.printf("\nUpdated producer %d in db rows affected %d\n",producer.getId() ,rowsAffect);
+        } catch (SQLException e){
+            System.out.printf("\nError while trying to update producer %d\n", producer.getId());
+            e.printStackTrace();
+        }
+    }
+
 }

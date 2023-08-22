@@ -18,6 +18,7 @@ public class ProducerService {
             case 1 -> findByName();
             case 2 -> delet();
             case 3 -> save();
+            case 4 -> update();
             default -> throw new IllegalArgumentException("Not a valid option");
         }
     }
@@ -40,6 +41,16 @@ public class ProducerService {
         System.out.print("Type the name of producer: ");
         String name = SCANNER.nextLine();
         Producer producer = Producer.builder().name(name).build();
-        createProducer(producer);
+        ProducerRepository.createProducer(producer);
+    }
+
+    private static void update(){
+        System.out.print("Type the id of producer: ");
+        int id = SCANNER.nextInt();
+        System.out.print("Type the new name of producer: ");
+        SCANNER.nextLine();
+        String name = SCANNER.nextLine();
+        Producer producer = Producer.builder().name(name).id(id).build();
+        ProducerRepository.update(producer);
     }
 }
