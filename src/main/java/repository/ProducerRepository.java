@@ -24,8 +24,10 @@ public class ProducerRepository {
                         .build();
                 producers.add(producer);
             }
+            System.out.println("\nProducer added successful\n");
         } catch (SQLException e){
-            log.error("Error while trying to find producer", e);
+            System.out.println("Error while trying to find producer");
+            e.printStackTrace();
         }
         return producers;
     }
@@ -33,7 +35,6 @@ public class ProducerRepository {
     private static PreparedStatement createPreparedStatement(Connection con, String name)
             throws SQLException {
         String sql = "SELECT * FROM animeStore.producer WHERE name like ?;";
-
         PreparedStatement ps = con.prepareStatement(sql);
         ps.setString(1, String.format("%%%s%%", name));
         return ps;
@@ -44,10 +45,22 @@ public class ProducerRepository {
         try (Connection con = ConnectionFactory.getConnection();
              Statement stmt = con.createStatement()){
             int rowsAffect = stmt.executeUpdate(sql);
-            log.info("Deleted producer '{}' in db rows affected {}",id ,rowsAffect);
-        } catch (SQLException e){
-            log.error("Error while trying to delete producer '{}' ", id, e);
+            System.out.printf("\nDeleted producer %d in db rows affected %d\n",id ,rowsAffect);
+        } catch (SQLException e) {
+            System.out.printf("Error while trying to delete producer %d\n", id);
+            e.printStackTrace();
         }
+    }
 
+    public static void createProducer(Producer p){
+        String sql = "INSERT INTO `animeStore`.`producer` (name) VALUES ('%s');".formatted(p.getName());
+        try (Connection con = ConnectionFactory.getConnection();
+             Statement stmt = con.createStatement()){
+            int rowsAffect = stmt.executeUpdate(sql);
+            System.out.printf("\nInsert producer %s in db rows affected %d\n",p.getName(),rowsAffect);
+        } catch (SQLException e){
+            System.out.printf("Error while trying to insert producer %s\n", p.getName());
+            e.printStackTrace();
+        }
     }
 }
