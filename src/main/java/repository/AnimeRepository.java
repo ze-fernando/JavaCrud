@@ -80,8 +80,11 @@ public class AnimeRepository {
     }
 
     public static void update(Anime anime){
-        String sql = "UPDATE `animeStore`.`anime` SET `name` = '%s ' WHERE (`id` = '%d');"
-                .formatted(anime.getName(), anime.getId());
+        String sql = "UPDATE `animeStore`.`anime` SET `name` = '%s ' AND `episodes` = %d  WHERE (`id` = '%d');"
+                .formatted(
+                        anime.getName(),
+                        anime.getEpisodes(),
+                        anime.getId());
         try (Connection con = ConnectionFactory.getConnection();
              Statement stmt = con.createStatement()){
             int rowsAffect = stmt.executeUpdate(sql);
