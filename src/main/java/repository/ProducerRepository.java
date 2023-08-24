@@ -14,7 +14,7 @@ public class ProducerRepository {
     public static List<Producer> findByName(String name){
         List<Producer> producers = new ArrayList<>();
         try (Connection con = ConnectionFactory.getConnection();
-             PreparedStatement ps = createPreparedStatement(con, name);
+             PreparedStatement ps = findByNamePreparedStatement(con, name);
              ResultSet rs = ps.executeQuery()){
 
             while(rs.next()){
@@ -31,8 +31,7 @@ public class ProducerRepository {
         }
         return producers;
     }
-
-    private static PreparedStatement createPreparedStatement(Connection con, String name)
+    private static PreparedStatement findByNamePreparedStatement(Connection con, String name)
             throws SQLException {
         String sql = "SELECT * FROM animeStore.producer WHERE name like ?;";
         PreparedStatement ps = con.prepareStatement(sql);
@@ -52,29 +51,53 @@ public class ProducerRepository {
         }
     }
 
-    public static void createProducer(Producer p){
-        String sql = "INSERT INTO `animeStore`.`producer` (name) VALUES ('%s');".formatted(p.getName());
-        try (Connection con = ConnectionFactory.getConnection();
-             Statement stmt = con.createStatement()){
-            int rowsAffect = stmt.executeUpdate(sql);
-            System.out.printf("\nInsert producer %s in db rows affected %d\n",p.getName(),rowsAffect);
+    public static void createProducer(List<Producer> p){
+        try (Connection con = ConnectionFactory.getConnection()){
+            con.setAutoCommit(false);
+            saveTransactionPrepareStatement(con, p);
+            con.commit();
+            con.setAutoCommit(true);
         } catch (SQLException e){
-            System.out.printf("Error while trying to insert producer %s\n", p.getName());
-            e.printStackTrace();
+            log.error("Error while trying to update producer '{}' ", p, e);
+        }
+    }
+    private static void saveTransactionPrepareStatement(Connection con, List<Producer> producers)
+            throws SQLException {
+        String sql = "INSERT INTO `animeStore`.`producer` (`name`) VALUES ( ? );";
+        boolean shoudRollback = false;
+        for (Producer p:producers) {
+            try (PreparedStatement ps = con.prepareStatement(sql)){
+                log.info("Saving producer '{}' ", p.getName());
+                ps.setString(1, p.getName());
+                ps.execute();
+            } catch (SQLException e){
+                e.printStackTrace();
+                shoudRollback = true;
+            }
+        }
+        if (shoudRollback){
+            log.warn("Transaction is going be rollback");
+            con.rollback();
         }
     }
 
     public static void update(Producer producer){
-        String sql = "UPDATE `animeStore`.`producer` SET `name` = '%s ' WHERE (`id` = '%d');"
-                .formatted(producer.getName(), producer.getId());
         try (Connection con = ConnectionFactory.getConnection();
-             Statement stmt = con.createStatement()){
-            int rowsAffect = stmt.executeUpdate(sql);
-            System.out.printf("\nUpdated producer %d in db rows affected %d\n",producer.getId() ,rowsAffect);
+             PreparedStatement ps = PreparedStatementUpdate(con, producer)){
+            int rowsAffect = ps.executeUpdate();
+            log.info("Updated producer '{}' in db rows affected {}",producer.getId() ,rowsAffect);
         } catch (SQLException e){
-            System.out.printf("\nError while trying to update producer %d\n", producer.getId());
-            e.printStackTrace();
+            log.error("Error while trying to update producer '{}' ", producer.getId(), e);
         }
+    }
+    private static PreparedStatement PreparedStatementUpdate(Connection con, Producer producer)
+            throws SQLException {
+        String sql = "UPDATE `animeStore`.`producer` SET `name` = ? WHERE (`id` = ?);";
+
+        var ps = con.prepareStatement(sql);
+        ps.setString(1, producer.getName());
+        ps.setInt(2, producer.getId());
+        return ps;
     }
 
 }
