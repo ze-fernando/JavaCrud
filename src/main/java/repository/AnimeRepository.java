@@ -43,8 +43,8 @@ public class AnimeRepository {
     private static PreparedStatement createPreparedStatement(Connection con, String name)
             throws SQLException {
         String sql = """
-                    SELECT a.id, a.episodes, a.name, a.producer_id, p.name as 'producer_name' FROM animeStore.anime
-                    a INNER JOIN animeStore.producer p on a.producer_id = p.id WHERE a.name LIKE ?
+                    SELECT a.id, a.episodes, a.name, a.producer_id, a.name as 'producer_name' FROM animeStore.anime
+                    a INNER JOIN animeStore.producer a on a.producer_id = a.id WHERE a.name LIKE ?
                     """;
         PreparedStatement ps = con.prepareStatement(sql);
         ps.setString(1, String.format("%%%s%%", name));
@@ -63,14 +63,18 @@ public class AnimeRepository {
         }
     }
 
-    public static void createProducer(Anime p){
-        String sql = "INSERT INTO `animeStore`.`anime` (name) VALUES ('%s');".formatted(p.getName());
+    public static void createProducer(Anime a){
+        String sql = "INSERT INTO `animeStore`.`anime` (name, episodes, producer_id) VALUES ('%s', '%d', '%d');"
+                .formatted(
+                        a.getName(),
+                        a.getEpisodes(),
+                        a.getProducer().getId());
         try (Connection con = ConnectionFactory.getConnection();
              Statement stmt = con.createStatement()){
             int rowsAffect = stmt.executeUpdate(sql);
-            System.out.printf("\nInsert anime %s in db rows affected %d\n",p.getName(),rowsAffect);
+            System.out.printf("\nInsert anime %s in db rows affected %d\n",a.getName(),rowsAffect);
         } catch (SQLException e){
-            System.out.printf("Error while trying to insert anime %s\n", p.getName());
+            System.out.printf("Error while trying to insert anime %s\n", a.getName());
             e.printStackTrace();
         }
     }
