@@ -7,20 +7,14 @@
 
 **Producer**
 
-*Delet producer* 
-
-*Get producer*
-
-*Update producer*
-
-*Save new producer*
+* *Delet producer* 
+* *Get producer*
+* *Update producer*
+* *Save new producer*
 
 
 **Anime**
-*Delet anime*
-
-*Get anime*
-
-*Update anime*
-
-*Save new anime*
+* *Delet anime*
+* *Get anime*
+* *Update anime*
+* *Save new anime*
