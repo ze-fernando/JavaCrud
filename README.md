@@ -10,11 +10,17 @@
 *Delet producer* 
 
 *Get producer*
+
 *Update producer*
+
 *Save new producer*
+
 
 **Anime**
 *Delet anime*
+
 *Get anime*
+
 *Update anime*
+
 *Save new anime*
