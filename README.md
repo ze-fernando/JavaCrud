@@ -4,6 +4,7 @@
 *Project that simulates an anime store system, where we register anime, producers, number of episodes, being able to search by id, search all, delete and update anime or producer* <br>
  
 **Technology used**
+
 [Java](https://www.oracle.com/br/java/technologies/downloads/)
 
 [Lombok](https://projectlombok.org/download)
