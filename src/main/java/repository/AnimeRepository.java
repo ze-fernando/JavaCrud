@@ -2,7 +2,6 @@ package repository;
 
 import conn.ConnectionFactory;
 import domain.Anime;
-import domain.Producer;
 import lombok.extern.log4j.Log4j2;
 
 import java.sql.*;
@@ -15,37 +14,26 @@ public class AnimeRepository {
     public static List<Anime> findByName(String name){
         List<Anime> animes = new ArrayList<>();
         try (Connection con = ConnectionFactory.getConnection();
-             PreparedStatement ps = createPreparedStatement(con, name);
+             PreparedStatement ps = findByNamePreparedStatement(con, name);
              ResultSet rs = ps.executeQuery()){
 
             while(rs.next()){
-                Producer producer = Producer.builder()
-                        .name(rs.getString("name"))
-                        .id(rs.getInt("id"))
-                        .build();
-                
                 Anime anime = Anime.builder()
                         .name(rs.getString("name"))
                         .id(rs.getInt("id"))
-                        .episodes(rs.getInt("episodes"))
-                        .producer(producer)
                         .build();
                 animes.add(anime);
             }
-            System.out.println("\nAnime added successful\n");
+            System.out.println("\nanime added successful\n");
         } catch (SQLException e){
             System.out.println("Error while trying to find anime");
             e.printStackTrace();
         }
         return animes;
     }
-
-    private static PreparedStatement createPreparedStatement(Connection con, String name)
+    private static PreparedStatement findByNamePreparedStatement(Connection con, String name)
             throws SQLException {
-        String sql = """
-                    SELECT a.id, a.episodes, a.name, a.producer_id, a.name as 'producer_name' FROM animeStore.anime
-                    a INNER JOIN animeStore.producer a on a.producer_id = a.id WHERE a.name LIKE ?
-                    """;
+        String sql = "SELECT * FROM animeStore.anime WHERE name like ?;";
         PreparedStatement ps = con.prepareStatement(sql);
         ps.setString(1, String.format("%%%s%%", name));
         return ps;
@@ -63,36 +51,45 @@ public class AnimeRepository {
         }
     }
 
-    public static void createProducer(Anime a){
-        String sql = "INSERT INTO `animeStore`.`anime` (name, episodes, producer_id) VALUES ('%s', '%d', '%d');"
-                .formatted(
-                        a.getName(),
-                        a.getEpisodes(),
-                        a.getProducer().getId());
-        try (Connection con = ConnectionFactory.getConnection();
-             Statement stmt = con.createStatement()){
-            int rowsAffect = stmt.executeUpdate(sql);
-            System.out.printf("\nInsert anime %s in db rows affected %d\n",a.getName(),rowsAffect);
+    public static void createanime(Anime a){
+        try (Connection con = ConnectionFactory.getConnection()){
+            con.setAutoCommit(false);
+            saveTransactionPrepareStatement(con, a);
+            con.commit();
+            con.setAutoCommit(true);
         } catch (SQLException e){
-            System.out.printf("Error while trying to insert anime %s\n", a.getName());
-            e.printStackTrace();
+            log.error("Error while trying to update anime '{}' ", a, e);
         }
+    }
+    private static void saveTransactionPrepareStatement(Connection con, Anime a)
+            throws SQLException {
+        String sql = "INSERT INTO `animeStore`.`anime` (`name`) VALUES ( ? );";
+            try (PreparedStatement ps = con.prepareStatement(sql)){
+                log.info("Saving anime '{}' ", a.getName());
+                ps.setString(1, a.getName());
+                ps.execute();
+            } catch (SQLException e){
+                e.printStackTrace();
+            }
     }
 
     public static void update(Anime anime){
-        String sql = "UPDATE `animeStore`.`anime` SET `name` = '%s ' AND `episodes` = %d  WHERE (`id` = '%d');"
-                .formatted(
-                        anime.getName(),
-                        anime.getEpisodes(),
-                        anime.getId());
         try (Connection con = ConnectionFactory.getConnection();
-             Statement stmt = con.createStatement()){
-            int rowsAffect = stmt.executeUpdate(sql);
-            System.out.printf("\nUpdated anime %d in db rows affected %d\n",anime.getId() ,rowsAffect);
+             PreparedStatement ps = PreparedStatementUpdate(con, anime)){
+            int rowsAffect = ps.executeUpdate();
+            log.info("Updated anime '{}' in db rows affected {}",anime.getId() ,rowsAffect);
         } catch (SQLException e){
-            System.out.printf("\nError while trying to update anime %d\n", anime.getId());
-            e.printStackTrace();
+            log.error("Error while trying to update anime '{}' ", anime.getId(), e);
         }
+    }
+    private static PreparedStatement PreparedStatementUpdate(Connection con, Anime anime)
+            throws SQLException {
+        String sql = "UPDATE `animeStore`.`anime` SET `name` = ? WHERE (`id` = ?);";
+
+        var ps = con.prepareStatement(sql);
+        ps.setString(1, anime.getName());
+        ps.setInt(2, anime.getId());
+        return ps;
     }
 
 }

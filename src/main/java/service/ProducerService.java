@@ -1,14 +1,12 @@
 package service;
 
 import domain.Producer;
-import lombok.extern.log4j.Log4j2;
 import repository.ProducerRepository;
 
 import java.util.Scanner;
 
 import static repository.ProducerRepository.delete;
 
-@Log4j2
 public class ProducerService {
     private static final Scanner SCANNER = new Scanner(System.in);
     public static void buildMenu(int op){

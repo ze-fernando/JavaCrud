@@ -1,14 +1,12 @@
 package service;
 
 import domain.Anime;
-import lombok.extern.log4j.Log4j2;
 import repository.AnimeRepository;
 
 import java.util.Scanner;
 
 import static repository.AnimeRepository.delete;
 
-@Log4j2
 public class AnimeService {
     private static final Scanner SCANNER = new Scanner(System.in);
     public static void buildMenu(int op){
@@ -39,7 +37,7 @@ public class AnimeService {
         System.out.print("Type the name of anime: ");
         String name = SCANNER.nextLine();
         Anime anime = Anime.builder().name(name).build();
-        AnimeRepository.createProducer(anime);
+        AnimeRepository.createanime(anime);
     }
 
     private static void update(){

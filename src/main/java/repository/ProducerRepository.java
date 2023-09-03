@@ -51,7 +51,7 @@ public class ProducerRepository {
         }
     }
 
-    public static void createProducer(List<Producer> p){
+    public static void createProducer(Producer p){
         try (Connection con = ConnectionFactory.getConnection()){
             con.setAutoCommit(false);
             saveTransactionPrepareStatement(con, p);
@@ -61,24 +61,16 @@ public class ProducerRepository {
             log.error("Error while trying to update producer '{}' ", p, e);
         }
     }
-    private static void saveTransactionPrepareStatement(Connection con, List<Producer> producers)
+    private static void saveTransactionPrepareStatement(Connection con, Producer p)
             throws SQLException {
         String sql = "INSERT INTO `animeStore`.`producer` (`name`) VALUES ( ? );";
-        boolean shoudRollback = false;
-        for (Producer p:producers) {
             try (PreparedStatement ps = con.prepareStatement(sql)){
                 log.info("Saving producer '{}' ", p.getName());
                 ps.setString(1, p.getName());
                 ps.execute();
             } catch (SQLException e){
                 e.printStackTrace();
-                shoudRollback = true;
             }
-        }
-        if (shoudRollback){
-            log.warn("Transaction is going be rollback");
-            con.rollback();
-        }
     }
 
     public static void update(Producer producer){
