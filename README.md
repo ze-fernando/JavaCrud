@@ -6,7 +6,9 @@
 ## Functions
 
 **Producer**
-*Delet producer*
+
+*Delet producer* 
+
 *Get producer*
 *Update producer*
 *Save new producer*
