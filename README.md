@@ -30,3 +30,14 @@
 * *Get anime*
 * *Update anime*
 * *Save new anime*
+
+
+## Start
+
+`git clone https://github.com/ze-fernando/JavaCrud/`
+
+`cd JavaCrud`
+
+`docker-compose up`
+
+*Open project in idea and run*
